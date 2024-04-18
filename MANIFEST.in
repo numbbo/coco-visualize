@@ -1,0 +1,4 @@
+graft test
+# Build artifacts not meant for source distribution
+global-exclude *.pyc
+global-exclude __pycache__
