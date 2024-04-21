@@ -103,7 +103,7 @@ class Result:
 class ProblemDescription:
     """Class to bundle the description of a problem instance."""
     problem_class: str
-    problem_instance: float
+    problem_instance: str
     number_of_variables: int = 0
     number_of_objectives: int = 0
 
@@ -146,7 +146,7 @@ class ResultSet:
         for g in sorted(self.algorithms):
             yield g, ResultSet(filter(lambda x: x.algorithm == g, self._results))            
 
-    def by_problem(self) -> Generator[tuple[tuple, ResultSet], Any, None]:
+    def by_problem(self) -> Generator[tuple[ProblemDescription, ResultSet], Any, None]:
         for pc in self.problem_classes:
             for pi in self.problem_instances:
                 for n in self.number_of_variables:

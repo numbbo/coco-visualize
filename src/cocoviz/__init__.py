@@ -4,7 +4,7 @@ from .types import Result, ResultSet
 from .plot import ertplot
 
 __all__ = [
-    Result,
-    ResultSet,
-    ertplot
+    "Result",
+    "ResultSet",
+    "ertplot"
 ]
