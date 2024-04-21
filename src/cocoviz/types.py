@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from typing import Any, Generator, Type
+from typing import Any, Generator
 from ._typing import FilePath
 
 import numpy as np
