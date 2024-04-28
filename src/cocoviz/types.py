@@ -18,7 +18,22 @@ logger = logging.getLogger(__name__)
 
 @dataclasses.dataclass(eq=True, order=True, frozen=True)
 class ProblemDescription:
-    """Class to bundle the description of a problem instance."""
+    """Description of a specific (benchmark) problem
+
+    Attributes
+    ----------
+    name : str
+    instance : str
+    number_of_variables : int
+    number_of_objectives : int
+    
+    Methods
+    -------
+    to_json()
+        Return a JSON document describing the problem
+    from_json(json)
+        Create a ProblemDescription from a JSON document
+    """
 
     name: str
     instance: str
@@ -29,14 +44,30 @@ class ProblemDescription:
         return f"Instance {self.instance} of problem {self.name} with {self.number_of_variables} variables and {self.number_of_objectives} objectives"
 
     def to_json(self) -> str:
-        """Serialize a ProblemDescription to a JSON document"""
+        """Convert the problem description into JSON document.
+
+        Returns
+        -------
+        str
+            JSON document describing the problem.
+        """
         raw = dataclasses.asdict(self)
         return json.dumps(raw)
 
     @classmethod
-    def from_json(cls, str) -> ProblemDescription:
-        """Create a ProblemDescription from a JSON document"""
-        raw = json.loads(str)
+    def from_json(cls, json) -> ProblemDescription:
+        """Create a ProblemDescription from a JSON document.
+
+        Parameters
+        ----------
+        json : str
+            JSON document describing the problem.
+
+        Returns
+        -------
+        ProblemDescription            
+        """
+        raw = json.loads(json)
         return cls(**raw)
 
 

@@ -45,6 +45,8 @@ line-length = 120
 
 [tool.ruff.format]
 quote-style = "double"
+docstring-code-format = true
+docstring-code-line-length = 80
 
 [tool.pytest]
 log_cli = true

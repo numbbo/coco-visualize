@@ -14,6 +14,25 @@ def ertvalues(
     number_of_targets: int = 101,
     targets: dict = None,
 ):
+    """Compute ERT values for each algorithm in `results`.
+
+    Parameters
+    ----------
+    results : ResultSet
+        Collection of results of running any number of algorithms on any number of problems or problem instances.
+    indicator : str
+        Name of indicator to analyse.
+    number_of_targets : int, optional
+        Number of target values to generate for each problem it `targets` is missing.
+    targets : dict, optional
+        Dictionary of target values, index by problem.
+        If missing, `number_of_targets` targets are automatically generated.
+
+    Returns
+    -------
+    dict
+        Quantiles and probabilities for each algorithm in `results`.
+    """
     # If no targets are given, calculate `number_of_targets` linearly spaced targets
     if not targets:
         targets = linear_targets(results, indicator, number_of_targets)
@@ -48,6 +67,31 @@ def ertplot(
     targets=None,
     ax=None,
 ):
+    """Create an ERT plot of the `results`.
+
+    Parameters
+    ----------
+    results : ResultSet
+        Collection of results of running any number of algorithms on any number of problems or problem instances.
+    indicator : str
+        Name of indicator to analyse.
+    number_of_targets : int, optional
+        Number of target values to generate for each problem it `targets` is missing.
+    targets : dict, optional
+        Dictionary of target values, index by problem.
+        If missing, `number_of_targets` targets are automatically generated.
+
+    ax : matplotlib.axes.Axes, optional
+        Axes where the plot is drawn.
+        If missing, a new figure is created and returned.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        An Axes object containing the plot.
+        If `ax` is provided, it is returned.
+        Otherwise a new figure is created and the corresponding Axes object is returned.
+    """
     erts = ertvalues(results, indicator, number_of_targets=number_of_targets, targets=targets)
     if ax is None:
         fig, ax = plt.subplots()
