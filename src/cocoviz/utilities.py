@@ -1,5 +1,4 @@
 import colorsys
-
 from typing import List
 
 
