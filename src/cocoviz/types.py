@@ -4,8 +4,8 @@ from __future__ import annotations
 import logging
 import numpy as np
 import polars as pl
-
-from dataclasses import dataclass
+import json
+import dataclasses
 
 from typing import Any, Generator, Union
 from ._typing import FilePath
@@ -13,7 +13,7 @@ from .exceptions import NoSuchIndicatorException
 logger = logging.getLogger(__name__)
 
 
-@dataclass(eq=True, order=True, frozen=True)
+@dataclasses.dataclass(eq=True, order=True, frozen=True)
 class ProblemDescription:
     """Class to bundle the description of a problem instance."""
     name: str
@@ -23,6 +23,17 @@ class ProblemDescription:
 
     def __str__(self) -> str:
         return f"Instance {self.instance} of problem {self.name} with {self.number_of_variables} variables and {self.number_of_objectives} objectives"
+    
+    def to_json(self) -> str:
+        """Serialize a ProblemDescription to a JSON document"""
+        raw = dataclasses.asdict(self)
+        return json.dumps(raw)
+    
+    @classmethod
+    def from_json(cls, str) -> ProblemDescription:
+        """Create a ProblemDescription from a JSON document"""
+        raw = json.loads(str)
+        return cls(**raw)
 
 
 class Result:
