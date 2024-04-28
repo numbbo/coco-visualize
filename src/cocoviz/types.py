@@ -109,30 +109,29 @@ class Result:
                                             pl.Series(indicator, targets),
                                             pl.Series("__target_hit", target_hit)]))
 
-    # def to_parquet(self, path: FilePath):
-    #     import pyarrow as pa
-    #     import pyarrow.parquet as pq
-    #     tbl = self._data.to_arrow()
-    #     metadata = {
-    #       "algorithm": self.algorithm,
-    #       "problem": self.problem,
-    #     }
-    #     schema = tbl.schema.with_metadata(metadata)
-    #     tbl = pa.Table.from_arrays(list(tbl.itercolumns()), schema=schema)
-    #     pq.write_table(tbl, str(path))
+    def to_parquet(self, path: FilePath):
+        """Write results to a parquet file"""
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        tbl = self._data.to_arrow()
+        metadata = {
+          "algorithm": self.algorithm,
+          "problem": self.problem.to_json(),
+        }
+        schema = tbl.schema.with_metadata(metadata)
+        tbl = pa.Table.from_arrays(list(tbl.itercolumns()), schema=schema)
+        pq.write_table(tbl, str(path))
 
-    # @classmethod
-    # def from_parquet(cls, path: FilePath):
-    #     import pyarrow.parquet as pq
-    #     tbl = pq.read_table(path)
-    #     data = pl.from_arrow(tbl)
-    #     print(tbl.schema.metadata)
-    #     return cls(tbl.schema.metadata[b"algorithm"].decode("utf8"),
-    #                tbl.schema.metadata[b"problem_class"].decode("utf8"),
-    #                tbl.schema.metadata[b"problem_instance"].decode("utf8"),
-    #                int(tbl.schema.metadata[b"number_of_variables"]),
-    #                int(tbl.schema.metadata[b"number_of_objectives"]),
-    #                data)
+    @classmethod
+    def from_parquet(cls, path: FilePath):
+        """Read results from a parquet file."""
+        import pyarrow.parquet as pq
+        tbl = pq.read_table(path)        
+        algorithm = tbl.schema.metadata[b"algorithm"].decode("utf8")        
+        problem = ProblemDescription.from_json(tbl.schema.metadata[b"problem"].decode("utf8"))
+        data = pl.from_arrow(tbl)
+
+        return cls(algorithm, problem, data)
 
     
 class ResultSet:
