@@ -119,6 +119,7 @@ class Result:
         return self._data.height
 
     def at_indicator(self, indicator: str, targets):
+        # FIXME: Assumes maximization of indicator...
         if indicator not in self.indicators:
             raise NoSuchIndicatorException(indicator)
 
@@ -208,7 +209,7 @@ class ResultSet:
         return self
 
     def by_algorithm(self) -> Generator[tuple[str, ResultSet], Any, None]:
-        ## FIXME: Caution, this potentially is quadratic :/
+        ## FIXME: Caution, this is potentially quadratic !
         for algorithm in sorted(self.algorithms):
             ss = ResultSet()
             for result in self._results:
@@ -218,7 +219,7 @@ class ResultSet:
                 yield algorithm, ss
 
     def by_problem(self) -> Generator[tuple[ProblemDescription, ResultSet], Any, None]:
-        ## FIXME: Caution, this potentially is quadratic :/
+        ## FIXME: Caution, this is potentially quadratic!
         for problem in sorted(self.problems):
             ss = ResultSet()
             for result in self._results:
