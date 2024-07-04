@@ -11,7 +11,7 @@ import numpy as np
 import polars as pl
 
 from ._typing import FilePath
-from .exceptions import NoSuchIndicatorException
+from .exceptions import NoSuchIndicatorException, IndicatorMismatchException
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +198,10 @@ class ResultSet:
         return len(self._results)
 
     def append(self, result: Result) -> ResultSet:
+        # Make sure results have matching indicators and raise an exception if
+        # they don't.        
+        if len(self._results) > 0 and self._results[0].indicators != result.indicators:
+            raise IndicatorMismatchException("Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}")
         self.algorithms.add(result.algorithm)
         self.problems.add(result.problem)
         self._results.append(result)
