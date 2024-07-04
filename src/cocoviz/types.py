@@ -88,7 +88,7 @@ class Result:
         try:
             data = data.rename({fevals_column: "__fevals"})
         except pl.SchemaFieldNotFoundError:
-            logger.warn(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
+            logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
             data = data.rename({data.columns[0]: "__fevals"})
 
         # Pre-compute fevals / dim as '__fevals_dim' and sort data by '__fevals'
