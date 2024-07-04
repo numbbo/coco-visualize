@@ -8,7 +8,9 @@ import logging
 from typing import Any, Generator, Union
 
 import numpy as np
+
 import polars as pl
+from polars.exceptions import SchemaFieldNotFoundError
 
 from ._typing import FilePath
 from .exceptions import NoSuchIndicatorException, IndicatorMismatchException
@@ -87,7 +89,7 @@ class Result:
         # Rename `fevals_column` to '__fevals', if not present guess and warn.
         try:
             data = data.rename({fevals_column: "__fevals"})
-        except pl.SchemaFieldNotFoundError:
+        except SchemaFieldNotFoundError:
             logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
             data = data.rename({data.columns[0]: "__fevals"})
 
