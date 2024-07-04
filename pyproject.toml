@@ -28,9 +28,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [ 
-  "numpy >= 1.24.0",
+  "numpy >= 2.0",
   "polars >= 0.20",
   "matplotlib >= 3.7",
+  "scipy >= 1.14.0"
 ]
 dynamic = ["version"]
 
