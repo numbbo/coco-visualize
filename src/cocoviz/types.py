@@ -91,10 +91,11 @@ class Result:
             logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
             data = data.rename({data.columns[0]: "__fevals"})
 
-        # Pre-compute fevals / dim as '__fevals_dim' and sort data by '__fevals'
-        self._data = data.with_columns((pl.col("__fevals") / problem.number_of_variables).alias("__fevals_dim")).sort(
-            "__fevals"
-        )
+        # Sort data by '__fevals' column
+        data = data.sort("__fevals")
+
+        # Pre-compute fevals / dim as '__fevals_dim'
+        self._data = data.with_columns((pl.col("__fevals") / problem.number_of_variables).alias("__fevals_dim"))
 
         # All columns excluding '__fevals' and '__fevals_dim' are assumed to
         # contain indicator values.
