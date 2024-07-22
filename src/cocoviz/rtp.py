@@ -6,6 +6,7 @@ import scipy.stats as stats
 
 from .targets import linear_targets
 from .types import ResultSet
+from .exceptions import BadResultSetException
 
 
 def runtime_profiles(
@@ -15,7 +16,7 @@ def runtime_profiles(
     number_of_targets: int = 101,
     targets: dict = None,
 ):
-    """Compute runtime profile for each algorithm in `results`.
+    """Compute a runtime profile for each algorithm in `results`.
 
     Parameters
     ----------
@@ -36,6 +37,13 @@ def runtime_profiles(
     dict
         Quantiles and probabilities for each algorithm in `results`.
     """
+
+    if len(results.number_of_variables) > 1:
+        raise BadResultSetException("Cannot derive runtime profile for problems with different number of variables.")
+
+    if len(results.number_of_objectives) > 1:
+        raise BadResultSetException("Cannot derive runtime profile for problems with different number of objectives.")
+
     # If no targets are given, calculate `number_of_targets` linearly spaced targets
     if not targets:
         targets = linear_targets(results, indicator, number_of_targets)

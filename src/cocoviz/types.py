@@ -208,6 +208,8 @@ class ResultSet:
             raise IndicatorMismatchException("Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}")
         self.algorithms.add(result.algorithm)
         self.problems.add(result.problem)
+        self.number_of_variables.add(result.problem.number_of_variables)
+        self.number_of_objectives.add(result.problem.number_of_objectives)
         self._results.append(result)
         return self
 
