@@ -1,4 +1,4 @@
-"""Data structures collect experimental results"""
+"""Data structures for collecting experimental results"""
 
 from __future__ import annotations
 

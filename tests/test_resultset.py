@@ -1,7 +1,7 @@
 import pytest
 
 from cocoviz.exceptions import IndicatorMismatchException
-from cocoviz.types import Result, ResultSet, ProblemDescription
+from cocoviz.result import Result, ResultSet, ProblemDescription
 
 
 HV_a1 = {

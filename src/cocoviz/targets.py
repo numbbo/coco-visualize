@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 from numpy.typing import ArrayLike
 
-from .types import ProblemDescription, ResultSet
+from .result import ProblemDescription, ResultSet
 
 
 def linear_targets(

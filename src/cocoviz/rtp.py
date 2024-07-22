@@ -5,7 +5,7 @@ import polars as pl
 import scipy.stats as stats
 
 from .targets import linear_targets
-from .types import ResultSet
+from .result import ResultSet
 from .exceptions import BadResultSetException
 
 

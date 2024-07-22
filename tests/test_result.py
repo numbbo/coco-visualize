@@ -3,7 +3,7 @@ import polars as pl
 
 from polars.testing import assert_frame_equal
 
-from cocoviz.types import Result, ProblemDescription
+from cocoviz.result import Result, ProblemDescription
 
 
 HV_a1 = {
