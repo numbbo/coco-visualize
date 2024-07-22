@@ -4,14 +4,17 @@ import matplotlib.pyplot as plt
 import polars as pl
 import scipy.stats as stats
 
+from typing import Union
+
 from .targets import linear_targets
 from .result import ResultSet
-from .exceptions import BadResultSetException
+from .exceptions import BadResultSetException, UnknownIndicatorException
+from .indicator import Indicator
 
 
 def runtime_profiles(
     results: ResultSet,
-    indicator: str,
+    indicator: Union[Indicator, str],
     maximize_indicator: bool = True,
     number_of_targets: int = 101,
     targets: dict = None,
@@ -22,8 +25,8 @@ def runtime_profiles(
     ----------
     results : ResultSet
         Collection of results of running any number of algorithms on any number of problems or problem instances.
-    indicator : str
-        Name of indicator to analyse.
+    indicator : Indicator or str
+        Performance indicator to analyse.
     maximize_indicator : bool, optional
         Should the indicator be maximized or minimized?
     number_of_targets : int, optional
@@ -37,7 +40,13 @@ def runtime_profiles(
     dict
         Quantiles and probabilities for each algorithm in `results`.
     """
-
+    if not isinstance(indicator, Indicator):
+        try:
+            from .indicator import KNOWN_INDICATORS
+            indicator = KNOWN_INDICATORS[indicator]
+        except KeyError:
+            raise UnknownIndicatorException(indicator)
+    
     if len(results.number_of_variables) > 1:
         raise BadResultSetException("Cannot derive runtime profile for problems with different number of variables.")
 
@@ -46,12 +55,12 @@ def runtime_profiles(
 
     # If no targets are given, calculate `number_of_targets` linearly spaced targets
     if not targets:
-        targets = linear_targets(results, indicator, number_of_targets)
+        targets = linear_targets(results, indicator.name, number_of_targets)
 
     # Get (approximate) runtime to reach each target of indicator
     indicator_results = ResultSet()
     for r in results:
-        indicator_results.append(r.at_indicator(indicator, targets[r.problem]))
+        indicator_results.append(r.at_indicator(indicator.name, targets[r.problem]))
 
     res = {}
     for algo, algo_results in indicator_results.by_algorithm():
@@ -84,8 +93,10 @@ def rtpplot(
     ----------
     results : ResultSet
         Collection of results of running any number of algorithms on any number of problems or problem instances.
-    indicator : str
-        Name of indicator to analyse.
+    indicator : Indicator or str
+        Performance indicator to analyse. Name must match the name used in the results.
+        If a string is passed in, the indicator must have been registered previously by a call to
+        `cocoviz.indicator.register`.
     number_of_targets : int, optional
         Number of target values to generate for each problem it `targets` is missing.
     targets : dict, optional
