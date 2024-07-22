@@ -1,6 +1,5 @@
 <h1 align="center">
-<code>cocoviz</code><br>
-<img src="http://numbbo.github.io/coco/shortintro/coco.png" width="600">
+<img src="cocoviz.svg" width="400">
 </h1><br>
 
 [![PyPI Downloads](https://img.shields.io/pypi/dm/cocoviz.svg?label=PyPI%20downloads)](https://pypi.org/project/cocoviz/)
@@ -8,7 +7,6 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/numbbo/cocoviz?style=flat)
 
 `cocoviz` is a minimalist visualization toolkit for benchmark experiments.
-
 
 - **Website:** https://numbbo.github.io
 - **Source code:** https://github.com/numbbo/cocoviz/

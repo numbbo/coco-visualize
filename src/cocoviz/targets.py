@@ -23,3 +23,12 @@ def linear_targets(
             targets[desc] = np.linspace(low, high, number_of_targets)
 
     return targets
+
+
+def full_targets(results: ResultSet, indicator: str) -> dict[ProblemDescription, ArrayLike]:
+    targets = {}
+    for desc, problem_results in results.by_problem():
+        indicator_values = pl.concat([r._data for r in problem_results])[indicator]
+        targets[desc] = indicator_values.unique().sort()
+
+    return targets
