@@ -1,5 +1,5 @@
 from ._version import __version__  # noqa: F401
-from .ert import rtpplot, runtime_profiles
+from .rtp import rtpplot, runtime_profiles
 from .types import ProblemDescription, Result, ResultSet
 
 
