@@ -65,12 +65,16 @@ def deregister(ind: Union[Indicator, str]):
     NotImplementedError
         when `ind` is neither a string nor an instance of Indicator
     """
-    if isinstance(ind, str):
-        del KNOWN_INDICATORS[ind]
-    elif isinstance(ind, Indicator):    
-        del KNOWN_INDICATORS[ind.name]
-    else:
-        raise NotImplementedError()
+    try:
+        if isinstance(ind, str):
+            del KNOWN_INDICATORS[ind]
+        elif isinstance(ind, Indicator):    
+            del KNOWN_INDICATORS[ind.name]
+        else:
+            raise NotImplementedError()
+    except KeyError:
+        # Ignore deregistering not previously registered indicators
+        pass 
 
 
 def resolve(indicator) -> Indicator:
