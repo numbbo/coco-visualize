@@ -12,6 +12,7 @@ import numpy as np
 import polars as pl
 from polars.exceptions import SchemaFieldNotFoundError
 
+from . import indicator as ind
 from ._typing import FilePath
 from .exceptions import NoSuchIndicatorException, IndicatorMismatchException
 
@@ -74,6 +75,8 @@ class ProblemDescription:
 
 
 class Result:
+    """Results of a single algorithms run on a single problem"""
+    
     def __init__(
         self,
         algorithm: str,
@@ -121,14 +124,20 @@ class Result:
     def __len__(self) -> int:
         return self._data.height
 
-    def at_indicator(self, indicator: str, targets):
+    def at_indicator(self, indicator: Union[ind.Indicator, str], targets):
+        indicator = ind.resolve(indicator)
+
         # FIXME: Assumes maximization of indicator...
-        if indicator not in self.indicators:
+        if indicator.name not in self.indicators:
             raise NoSuchIndicatorException(indicator)
 
         fvals = self._data["__fevals"]
-        # Make sure indicator values are monotonically increasing
-        ivals = self._data[indicator].cum_max()
+        
+        # Make sure indicator values are monotonic
+        if indicator.larger_is_better:
+            ivals = self._data[indicator.name].cum_max()
+        else:
+            ivals = self._data[indicator.name].cum_min()
 
         target_fvals = fvals.max() * np.ones(len(targets))
         target_hit = np.zeros(len(targets))
@@ -136,8 +145,14 @@ class Result:
         indicator_idx = 0
         try:
             for i, target in enumerate(targets):
-                while ivals[indicator_idx] < target:
-                    indicator_idx += 1
+                ## FIXME: This is ugly duplication, but I don't know of
+                ## a more elegant way to write it. :/
+                if indicator.larger_is_better:
+                    while ivals[indicator_idx] < target:
+                        indicator_idx += 1
+                else:
+                    while ivals[indicator_idx] > target:
+                        indicator_idx += 1
                 target_fvals[i] = fvals[indicator_idx]
                 target_hit[i] = True
         except IndexError:
@@ -149,7 +164,7 @@ class Result:
             pl.DataFrame(
                 [
                     pl.Series("fevals", target_fvals),
-                    pl.Series(indicator, targets),
+                    pl.Series(indicator.name, targets),
                     pl.Series("__target_hit", target_hit),
                 ]
             ),
