@@ -58,10 +58,21 @@ def runtime_profiles(
         indicator_results.append(r.at_indicator(indicator, targets[r.problem]))
 
     res = {}
-    for algo, algo_results in indicator_results.by_algorithm():
+    n_results = None
+    for algo, algo_results in indicator_results.by_algorithm():        
+        # Make sure each algorithm has the same number of repetitions/runs If
+        # not, raise an exception for now. In the future we could try to down-
+        # or upsample the offending algorithm.
+        if n_results is None:
+            n_results = len(algo_results)
+        elif n_results != len(algo_results):
+            raise BadRuntimeProfileException(f"Expected {n_results} results for algorithm {algo}, found {len(results)}.")
+
         runtimes = []
+
         for algo_result in algo_results:
             runtimes.append(algo_result._data[["__fevals_dim", "__target_hit"]])
+        
         runtimes = pl.concat(runtimes)
         ecdf = stats.ecdf(
             stats.CensoredData(
