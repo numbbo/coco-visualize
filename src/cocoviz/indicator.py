@@ -4,6 +4,8 @@ import dataclasses
 
 from typing import Union
 
+from .exceptions import UnknownIndicatorException
+
 
 KNOWN_INDICATORS = dict()
 
@@ -59,6 +61,33 @@ def deregister(ind: Union[Indicator, str]):
         del KNOWN_INDICATORS[ind.name]
     else:
         raise NotImplementedError()
+
+
+def resolve(indicator) -> Indicator:
+    """Resolve something to an Indicator using the previously registered indicators
+
+    Parameters
+    ----------
+    indicator : any
+        Thing to resolve into an Indicator instance
+
+    Returns
+    -------
+    Indicator
+        Instance of Indicator for `indicator`        
+
+    Raises
+    ------
+    UnknownIndicatorException
+        Raised when `indicator` cannot be resolved.
+    """
+    if isinstance(indicator, Indicator):
+        return indicator
+
+    try:
+        return KNOWN_INDICATORS[indicator]
+    except KeyError:
+        raise UnknownIndicatorException(indicator)    
 
 
 ## Register some common and not so common quality indicators
