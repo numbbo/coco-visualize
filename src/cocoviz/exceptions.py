@@ -10,7 +10,7 @@ class IndicatorMismatchException(Exception):
     pass
 
 
-class BadResultSetException(Exception):
+class BadRuntimeProfileException(Exception):
     """Raised when a runtime profile doesn't make sense for a result set"""    
     
     pass

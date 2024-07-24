@@ -1,4 +1,4 @@
-"""Expected Runtime calculations"""
+"""Runtime profiles"""
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -8,7 +8,7 @@ from typing import Union
 
 from .targets import linear_targets
 from .result import ResultSet
-from .exceptions import BadResultSetException, UnknownIndicatorException
+from .exceptions import BadRuntimeProfileException, UnknownIndicatorException
 from .indicator import Indicator
 
 
@@ -48,10 +48,10 @@ def runtime_profiles(
             raise UnknownIndicatorException(indicator)
     
     if len(results.number_of_variables) > 1:
-        raise BadResultSetException("Cannot derive runtime profile for problems with different number of variables.")
+        raise BadRuntimeProfileException("Cannot derive runtime profile for problems with different number of variables.")
 
     if len(results.number_of_objectives) > 1:
-        raise BadResultSetException("Cannot derive runtime profile for problems with different number of objectives.")
+        raise BadRuntimeProfileException("Cannot derive runtime profile for problems with different number of objectives.")
 
     # If no targets are given, calculate `number_of_targets` linearly spaced targets
     if not targets:

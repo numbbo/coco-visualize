@@ -1,6 +1,6 @@
 import pytest
 
-from cocoviz.exceptions import BadResultSetException
+from cocoviz.exceptions import BadRuntimeProfileException
 from cocoviz import runtime_profiles, Result, ResultSet, ProblemDescription
 
 
@@ -24,7 +24,7 @@ def test_aggregate_over_objectives():
         Result("a1", pd_f1_d3, HV_a1)
     ])
 
-    with pytest.raises(BadResultSetException):
+    with pytest.raises(BadRuntimeProfileException):
         runtime_profiles(rs, indicator="hypervolume")
 
 def test_aggregate_over_variables():
@@ -35,5 +35,5 @@ def test_aggregate_over_variables():
         Result("a1", pd_f1_d3, HV_a1)
     ])
 
-    with pytest.raises(BadResultSetException):
+    with pytest.raises(BadRuntimeProfileException):
         runtime_profiles(rs, indicator="hypervolume")
