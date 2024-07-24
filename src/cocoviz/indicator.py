@@ -10,7 +10,7 @@ from .exceptions import UnknownIndicatorException
 KNOWN_INDICATORS = dict()
 
 
-@dataclasses.dataclass(eq=True, frozen=True)
+@dataclasses.dataclass(eq=True)
 class Indicator:
     """Description of a performance indicator
 
@@ -28,6 +28,7 @@ class Indicator:
     display_name: str = None
     larger_is_better: bool = True
 
+    # FIXME: Best design decision? Or should Indicator be frozen?
     def __post_init__(self):
         if self.display_name is None:
             self.display_name = self.name
@@ -45,6 +46,9 @@ def register(ind: Indicator):
     ind : Indicator
         Indicator to add to list of known indicators
     """
+    if ind.name in KNOWN_INDICATORS:
+        import warnings
+        warnings.warn(f"Reregistering performance indicator '{ind.name}'.", UserWarning, stacklevel=2)
     KNOWN_INDICATORS[ind.name] = ind
 
 
