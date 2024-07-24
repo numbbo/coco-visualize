@@ -117,9 +117,9 @@ def rtpplot(
         (line,) = ax.step(fevals, 100 * prob, label=algo)
 
     ax.set_xscale("log")
-    ax.grid(True, which="both")
+    ax.grid(True, which="both", color="lightgrey")
     ax.set_ylim(0, 100)
-    ax.set_xlabel("$\\log_{10}$(# fevals / dimension)")
+    ax.set_xlabel("# fevals / dimension")
     ax.set_ylabel("Fraction of targets reached [%]")
     ax.legend()
     return ax
