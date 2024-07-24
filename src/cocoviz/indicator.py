@@ -17,16 +17,22 @@ class Indicator:
     Attributes
     ----------
     name : str
-        Name of the quality indicator. Must match the column name
-        in the Results object.        
+        Name of the quality indicator. Must match the column name in the Results 
+        object.
+    display_name : str
+        String used as name of the indicator in plots and error messages
     larger_is_better : bool, default = True
-        True if larger values of the indicator are better, False 
-        otherwise.    
+        True if larger values of the indicator are better, False otherwise.
     """
     name: str
+    display_name: str = None
     larger_is_better: bool = True
 
-    
+    def __post_init__(self):
+        if self.display_name is None:
+            self.display_name = self.name
+
+
 def register(ind: Indicator):
     """Register a new performance indicator
 
@@ -90,8 +96,14 @@ def resolve(indicator) -> Indicator:
         raise UnknownIndicatorException(indicator)    
 
 
-## Register some common and not so common quality indicators
-register(Indicator("hypervolume", larger_is_better=True))
-register(Indicator("hv", larger_is_better=True))
-register(Indicator("r2", larger_is_better=True))
-register(Indicator("time", larger_is_better=False))
+## Register some common and not so common performance indicators
+register(Indicator("hypervolume", "Hypervolume", larger_is_better=True))
+register(Indicator("Hypervolume", "Hypervolume", larger_is_better=True))
+register(Indicator("hv", "Hypervolume", larger_is_better=True))
+register(Indicator("uhvi", "UHVI", larger_is_better=True))
+register(Indicator("time", "Time", larger_is_better=False))
+register(Indicator("r2", "R2", larger_is_better=False))
+register(Indicator("igd+", "IGD+", larger_is_better=False))
+register(Indicator("igdplus", "IGD+", larger_is_better=False))
+register(Indicator("igdp", "IGD+", larger_is_better=False))
+
