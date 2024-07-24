@@ -5,7 +5,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import logging
-from typing import Any, Generator, Union
+from typing import Any, Generator, Union, Callable
 
 import numpy as np
 
@@ -228,6 +228,26 @@ class ResultSet:
         self._results.append(result)
         return self
 
+    def filter(self, function: Callable[[Result], bool]) -> ResultSet:
+        """Return a ResultSet containing the results for which `function` returns `True`
+
+        Parameters
+        ----------
+        function : Function
+            Function to select results to return
+
+        Returns
+        -------
+        ResultSet
+            Results matched by `function`.
+        """
+
+        res = ResultSet()
+        for result in self._results:
+            if function(result):
+                res.append(result)
+        return res
+                
     def by_algorithm(self) -> Generator[tuple[str, ResultSet], Any, None]:
         ## FIXME: Caution, this is potentially quadratic !
         for algorithm in sorted(self.algorithms):
@@ -261,14 +281,10 @@ class ResultSet:
             if len(ss) > 0:
                 yield value, ss
 
-    def by_problem_name(
-        self,
-    ) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
+    def by_problem_name(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
         return self._by_problem_property("name")
 
-    def by_problem_instance(
-        self,
-    ) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
+    def by_problem_instance(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
         return self._by_problem_property("instance")
 
     def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], Any, None]:
