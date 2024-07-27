@@ -2,7 +2,7 @@
 
 import dataclasses
 
-from typing import Union
+from typing import Union, Optional
 
 from .exceptions import UnknownIndicatorException
 
@@ -10,28 +10,31 @@ from .exceptions import UnknownIndicatorException
 KNOWN_INDICATORS = dict()
 
 
-@dataclasses.dataclass(eq=True)
+@dataclasses.dataclass(eq=True, frozen=True)
 class Indicator:
     """Description of a performance indicator
 
     Attributes
     ----------
     name : str
-        Name of the quality indicator. Must match the column name in the Results 
+        Name of the quality indicator. Must match the column name in the Results
         object.
     display_name : str
-        String used as name of the indicator in plots and error messages
+        String used as name of the indicator in plots and error messages. If not
+        given, the `name` is reused.
     larger_is_better : bool, default = True
         True if larger values of the indicator are better, False otherwise.
     """
     name: str
-    display_name: str = None
+    display_name: str
     larger_is_better: bool = True
 
-    # FIXME: Best design decision? Or should Indicator be frozen?
-    def __post_init__(self):
-        if self.display_name is None:
-            self.display_name = self.name
+    def __init__(self, name: str, *, display_name: Optional[str] = None, larger_is_better: bool = True):
+        if display_name is None:
+            display_name = name
+        super().__setattr__("name", name)
+        super().__setattr__("display_name", display_name)
+        super().__setattr__("larger_is_better", larger_is_better)
 
 
 def register(ind: Indicator):
@@ -105,13 +108,13 @@ def resolve(indicator) -> Indicator:
 
 
 ## Register some common and not so common performance indicators
-register(Indicator("hypervolume", "Hypervolume", larger_is_better=True))
-register(Indicator("Hypervolume", "Hypervolume", larger_is_better=True))
-register(Indicator("hv", "Hypervolume", larger_is_better=True))
-register(Indicator("uhvi", "UHVI", larger_is_better=True))
-register(Indicator("time", "Time", larger_is_better=False))
-register(Indicator("r2", "R2", larger_is_better=False))
-register(Indicator("igd+", "IGD+", larger_is_better=False))
-register(Indicator("igdplus", "IGD+", larger_is_better=False))
-register(Indicator("igdp", "IGD+", larger_is_better=False))
+register(Indicator("hypervolume", display_name="Hypervolume", larger_is_better=True))
+register(Indicator("Hypervolume", display_name="Hypervolume", larger_is_better=True))
+register(Indicator("hv", display_name="Hypervolume", larger_is_better=True))
+register(Indicator("uhvi", display_name="UHVI", larger_is_better=True))
+register(Indicator("time", display_name="Time", larger_is_better=False))
+register(Indicator("r2", display_name="R2", larger_is_better=False))
+register(Indicator("igd+", display_name="IGD+", larger_is_better=False))
+register(Indicator("igdplus", display_name="IGD+", larger_is_better=False))
+register(Indicator("igdp", display_name="IGD+", larger_is_better=False))
 
