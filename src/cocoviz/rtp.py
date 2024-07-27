@@ -1,6 +1,8 @@
 """Runtime profiles"""
 
 import matplotlib.pyplot as plt
+import matplotlib.figure as mfigure
+import matplotlib.transforms as mtransforms
 import polars as pl
 import scipy.stats as stats
 
@@ -17,7 +19,7 @@ def runtime_profiles(
     indicator: Union[ind.Indicator, str],
     maximize_indicator: bool = True,
     number_of_targets: int = 101,
-    targets: dict = None,
+    targets: Union[dict, None] = None,
 ):
     """Compute a runtime profile for each algorithm in `results`.
 
@@ -68,12 +70,12 @@ def runtime_profiles(
         elif n_results != len(algo_results):
             raise BadRuntimeProfileException(f"Expected {n_results} results for algorithm {algo}, found {len(results)}.")
 
-        runtimes = []
+        rtlist = []
 
         for algo_result in algo_results:
-            runtimes.append(algo_result._data[["__fevals_dim", "__target_hit"]])
+            rtlist.append(algo_result._data[["__fevals_dim", "__target_hit"]])
         
-        runtimes = pl.concat(runtimes)
+        runtimes: pl.DataFrame = pl.concat(rtlist)
         ecdf = stats.ecdf(
             stats.CensoredData(
                 runtimes["__fevals_dim"].filter(runtimes["__target_hit"] > 0).to_numpy(),
@@ -123,6 +125,8 @@ def rtpplot(
     profiles = runtime_profiles(results, indicator, number_of_targets=number_of_targets, targets=targets)
     if ax is None:
         fig, ax = plt.subplots()
+    else:
+        fig: mfigure.Figure = ax.figure
 
     for algo, (fevals, prob) in profiles.items():
         (line,) = ax.step(fevals, 100 * prob, label=algo)

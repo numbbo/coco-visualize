@@ -5,9 +5,10 @@ from __future__ import annotations
 import dataclasses
 import json
 import logging
-from typing import Any, Generator, Union, Callable
+from typing import Any, Generator, Union, Callable, Iterator
 
 import numpy as np
+import numpy.typing as npt
 
 import polars as pl
 from polars.exceptions import SchemaFieldNotFoundError
@@ -139,7 +140,7 @@ class Result:
         else:
             ivals = self._data[indicator.name].cum_min()
 
-        target_fvals = fvals.max() * np.ones(len(targets))
+        target_fvals : npt.NDArray[np.float64] = fvals.max() * np.ones(len(targets))
         target_hit = np.zeros(len(targets))
 
         indicator_idx = 0
@@ -210,11 +211,14 @@ class ResultSet:
         for r in results:
             self.append(r)
 
-    def __getitem__(self, key: int) -> Any:
+    def __getitem__(self, key: int) -> Result:
         return self._results[key]
 
     def __len__(self) -> int:
         return len(self._results)
+
+    def __iter__(self) ->  Iterator[Result]:
+        return iter(self._results)
 
     def append(self, result: Result) -> ResultSet:
         # Make sure results have matching indicators and raise an exception if
@@ -268,7 +272,7 @@ class ResultSet:
             if len(ss) > 0:
                 yield problem, ss
 
-    def _by_problem_property(self, property: str) -> Generator[tuple[ProblemDescription, ResultSet], Any, None]:
+    def _by_int_problem_property(self, property: str) -> Generator[tuple[int, ResultSet], Any, None]:
         values = set()
         for problem in self.problems:
             values.add(getattr(problem, property))
@@ -281,6 +285,20 @@ class ResultSet:
             if len(ss) > 0:
                 yield value, ss
 
+    def _by_problem_property(self, property: str) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
+        values = set()
+        for problem in self.problems:
+            values.add(getattr(problem, property))
+
+        for value in sorted(values):
+            ss = ResultSet()
+            for result in self._results:
+                if getattr(result.problem, property) == value:
+                    ss.append(result)
+            if len(ss) > 0:
+                yield value, ss
+
+
     def by_problem_name(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
         return self._by_problem_property("name")
 
@@ -288,7 +306,7 @@ class ResultSet:
         return self._by_problem_property("instance")
 
     def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], Any, None]:
-        return self._by_problem_property("number_of_variables")
+        return self._by_int_problem_property("number_of_variables")        
 
     def by_number_of_objectives(self) -> Generator[tuple[int, ResultSet], Any, None]:
-        return self._by_problem_property("number_of_objectives")
+        return self._by_int_problem_property("number_of_objectives")        

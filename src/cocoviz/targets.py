@@ -9,7 +9,7 @@ from .result import ProblemDescription, ResultSet
 
 
 def linear_targets(
-    results: ResultSet, indicator: str, number_of_targets: int = 101
+    results: ResultSet, indicator: ind.Indicator, number_of_targets: int = 101
 ) -> dict[ProblemDescription, ArrayLike]:
     indicator = ind.resolve(indicator)
 
