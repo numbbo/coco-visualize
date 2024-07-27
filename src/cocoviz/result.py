@@ -59,7 +59,7 @@ class ProblemDescription:
         return json.dumps(raw)
 
     @classmethod
-    def from_json(cls, json) -> ProblemDescription:
+    def from_json(cls, str) -> ProblemDescription:
         """Create a ProblemDescription from a JSON document.
 
         Parameters
@@ -71,7 +71,7 @@ class ProblemDescription:
         -------
         ProblemDescription            
         """
-        raw = json.loads(json)
+        raw = json.loads(str)
         return cls(**raw)
 
 
