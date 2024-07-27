@@ -133,8 +133,21 @@ def rtpplot(
 
     ax.set_xscale("log")
     ax.grid(True, which="both", color="lightgrey")
+    ax.legend(title="Algorithms")
+    
+    problems = sorted(set(p.name for p in results.problems))
+    if len(problems) > 1:
+        offset = mtransforms.ScaledTranslation(10/72., -10/72., fig.dpi_scale_trans)
+        ax.text(0, 1, "Problems\n" + "\n".join(problems), 
+                transform=ax.transAxes + offset,
+                bbox=dict(facecolor="white", edgecolor="lightgrey"),
+                verticalalignment="top", 
+                horizontalalignment="left")
+    else:
+        pass
+    
     ax.set_ylim(0, 100)
     ax.set_xlabel("# fevals / dimension")
     ax.set_ylabel("Fraction of targets reached [%]")
-    ax.legend()
+    
     return ax
