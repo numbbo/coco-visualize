@@ -11,7 +11,7 @@ import numpy as np
 import numpy.typing as npt
 
 import polars as pl
-from polars.exceptions import SchemaFieldNotFoundError
+from polars.exceptions import ColumnNotFoundError, SchemaFieldNotFoundError
 
 from . import indicator as ind
 from ._typing import FilePath
@@ -90,11 +90,11 @@ class Result:
         self.algorithm = algorithm
         self.problem = problem
 
-        if fevals_column !=  "__fevals":
+        if fevals_column != "__fevals":
             # Rename `fevals_column` to '__fevals', if not present guess and warn.
             try:
                 data = data.rename({fevals_column: "__fevals"})
-            except SchemaFieldNotFoundError:
+            except (ColumnNotFoundError, SchemaFieldNotFoundError):
                 logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
                 data = data.rename({data.columns[0]: "__fevals"})
 
