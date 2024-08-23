@@ -90,12 +90,13 @@ class Result:
         self.algorithm = algorithm
         self.problem = problem
 
-        # Rename `fevals_column` to '__fevals', if not present guess and warn.
-        try:
-            data = data.rename({fevals_column: "__fevals"})
-        except SchemaFieldNotFoundError:
-            logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
-            data = data.rename({data.columns[0]: "__fevals"})
+        if fevals_column !=  "__fevals":
+            # Rename `fevals_column` to '__fevals', if not present guess and warn.
+            try:
+                data = data.rename({fevals_column: "__fevals"})
+            except SchemaFieldNotFoundError:
+                logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
+                data = data.rename({data.columns[0]: "__fevals"})
 
         # Sort data by '__fevals' column
         data = data.sort("__fevals")
@@ -195,7 +196,7 @@ class Result:
         problem = ProblemDescription.from_json(tbl.schema.metadata[b"problem"].decode("utf8"))
         data = pl.from_arrow(tbl)
 
-        return cls(algorithm, problem, data)
+        return cls(algorithm, problem, data, "__fevals")
 
 
 class ResultSet:
