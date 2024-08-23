@@ -7,14 +7,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cocoviz"
+name = "coco-visualize"
 authors = [
   {name = "Dimo Brockhoff", email = "dimo.brockhoff@inria.fr" },
   {name = "Nikolaus Hansen", email = "nikolaus.hansen@inria.fr" },
   {name = "Olaf Mersmann", email = "olafm@p-value.net"},
   {name = "Tea Tušar", email = "tea.tusar@ijs.si" },
 ]
-description = 'COCO on Crack'
+description = 'Standalone COCO visualization toolbox'
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "BSD-3-Clause"}
