@@ -8,8 +8,28 @@ from . import indicator as ind
 from .result import ProblemDescription, ResultSet
 
 
+def log_targets(results: ResultSet, indicator: ind.Indicator | str, number_of_targets: int = 101):
+    indicator = ind.resolve(indicator)
+
+    targets = {}
+    for desc, problem_results in results.by_problem():
+        indicator_values = pl.concat([r._data for r in problem_results])[indicator.name]
+        low = indicator_values.min()
+        high = indicator_values.max()
+        delta = high - low
+
+        mul = np.logspace(-16, 0, number_of_targets)
+        if low == high:
+            targets[desc] = np.linspace(low, high, 1)
+        elif indicator.larger_is_better:
+            targets[desc] = low + delta * mul
+        else:
+            targets[desc] = np.flip(low + delta * mul)
+    return targets
+
+
 def linear_targets(
-    results: ResultSet, indicator: ind.Indicator, number_of_targets: int = 101
+    results: ResultSet, indicator: ind.Indicator | str, number_of_targets: int = 101
 ) -> dict[ProblemDescription, ArrayLike]:
     indicator = ind.resolve(indicator)
 
