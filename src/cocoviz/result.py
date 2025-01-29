@@ -6,6 +6,7 @@ import dataclasses
 import json
 import logging
 from typing import Any, Generator, Union, Callable, Iterator
+from collections.abc import Sequence
 
 import numpy as np
 import numpy.typing as npt
@@ -236,6 +237,17 @@ class ResultSet:
         self.number_of_objectives.add(result.problem.number_of_objectives)
         self._results.append(result)
         return self
+
+    def extend(self, results: Sequence[Result]):
+        """Extend a ResultSet with a sequence of `Result`s or another `ResultSetǹ.
+
+        Parameters
+        ----------
+        results: Sequence[Result] or Resultset:
+            Results to add to this result set.
+        """
+        for result in results:
+            self.append(result)
 
     def filter(self, function: Callable[[Result], bool]) -> ResultSet:
         """Return a ResultSet containing the results for which `function` returns `True`
