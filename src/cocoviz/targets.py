@@ -26,7 +26,7 @@ def linear_targets(
             targets[desc] = np.linspace(low, high, number_of_targets)
         else:
             targets[desc] = np.linspace(high, low, number_of_targets)
-            
+
     return targets
 
 

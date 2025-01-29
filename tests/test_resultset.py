@@ -5,19 +5,19 @@ from cocoviz.result import Result, ResultSet, ProblemDescription
 
 
 HV_a1 = {
-    "fevals":      [  1,   2,   3,  10,  20,  50, 100],
-    "hypervolume": [ 10,  20,  30,  40,  50,  60,  70],
-    "r2":          [ 20,  40,  60,  80, 100, 120, 140]
+    "fevals": [1, 2, 3, 10, 20, 50, 100],
+    "hypervolume": [10, 20, 30, 40, 50, 60, 70],
+    "r2": [20, 40, 60, 80, 100, 120, 140],
 }
 
 HV_a2 = {
-    "fevals":      [  1,   2,   3,  10,  20,  50, 100],
-    "hypervolume": [ 12,  22,  32,  42,  52,  62,  72],
-    "r2":          [ 22,  42,  62,  82, 102, 122, 142]
+    "fevals": [1, 2, 3, 10, 20, 50, 100],
+    "hypervolume": [12, 22, 32, 42, 52, 62, 72],
+    "r2": [22, 42, 62, 82, 102, 122, 142],
 }
 
 HV_a2_nor2 = HV_a2.copy()
-del HV_a2_nor2["r2"] 
+del HV_a2_nor2["r2"]
 
 
 def test_indicator_mismatch():

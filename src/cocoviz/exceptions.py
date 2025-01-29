@@ -11,15 +11,17 @@ class IndicatorMismatchException(Exception):
 
 
 class BadRuntimeProfileException(Exception):
-    """Raised when a runtime profile doesn't make sense for a result set"""    
-    
+    """Raised when a runtime profile doesn't make sense for a result set"""
+
     pass
 
 
 class UnknownIndicatorException(Exception):
     """Raised when an indicator is passed as a string and hasn't been registered previously"""
+
     def __init__(self, name: str):
         from .indicator import KNOWN_INDICATORS
+
         super()
         self.add_note(f"""You passed the string "{name}" as an indicator that was not previously registered.
                       
@@ -42,4 +44,4 @@ or
 >>> import cocoviz.indicator as ci
 >>> ci.register(ci.Indicator("hypervolume", larger_is_better=True))
 >>> runtime_profiles(results, "hypervolume")                                            
-""")    
+""")

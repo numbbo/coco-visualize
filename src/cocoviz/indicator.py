@@ -25,6 +25,7 @@ class Indicator:
     larger_is_better : bool, default = True
         True if larger values of the indicator are better, False otherwise.
     """
+
     name: str
     display_name: str
     larger_is_better: bool = True
@@ -51,6 +52,7 @@ def register(ind: Indicator):
     """
     if ind.name in KNOWN_INDICATORS:
         import warnings
+
         warnings.warn(f"Reregistering performance indicator '{ind.name}'.", UserWarning, stacklevel=2)
     KNOWN_INDICATORS[ind.name] = ind
 
@@ -71,13 +73,13 @@ def deregister(ind: Union[Indicator, str]):
     try:
         if isinstance(ind, str):
             del KNOWN_INDICATORS[ind]
-        elif isinstance(ind, Indicator):    
+        elif isinstance(ind, Indicator):
             del KNOWN_INDICATORS[ind.name]
         else:
             raise NotImplementedError()
     except KeyError:
         # Ignore deregistering not previously registered indicators
-        pass 
+        pass
 
 
 def resolve(indicator) -> Indicator:
@@ -91,7 +93,7 @@ def resolve(indicator) -> Indicator:
     Returns
     -------
     Indicator
-        Instance of Indicator for `indicator`        
+        Instance of Indicator for `indicator`
 
     Raises
     ------
@@ -104,7 +106,7 @@ def resolve(indicator) -> Indicator:
     try:
         return KNOWN_INDICATORS[indicator]
     except KeyError:
-        raise UnknownIndicatorException(indicator)    
+        raise UnknownIndicatorException(indicator)
 
 
 ## Register some common and not so common performance indicators
@@ -117,4 +119,3 @@ register(Indicator("r2", display_name="R2", larger_is_better=False))
 register(Indicator("igd+", display_name="IGD+", larger_is_better=False))
 register(Indicator("igdplus", display_name="IGD+", larger_is_better=False))
 register(Indicator("igdp", display_name="IGD+", larger_is_better=False))
-

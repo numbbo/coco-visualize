@@ -10,7 +10,7 @@ def scale_lightness(rgb: List[float], scale_l: float):
     rgb : (float, float, float)
         Red, green and blue values of color.
     scale_l : float
-        Scaling factor for the lightness. 
+        Scaling factor for the lightness.
         If smaller than one, the result will be darker.
         If larger than one, the result will be lighter.
 

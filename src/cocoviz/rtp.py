@@ -43,12 +43,16 @@ def runtime_profiles(
         Quantiles and probabilities for each algorithm in `results`.
     """
     indicator = ind.resolve(indicator)
-    
+
     if len(results.number_of_variables) > 1:
-        raise BadRuntimeProfileException("Cannot derive runtime profile for problems with different number of variables.")
+        raise BadRuntimeProfileException(
+            "Cannot derive runtime profile for problems with different number of variables."
+        )
 
     if len(results.number_of_objectives) > 1:
-        raise BadRuntimeProfileException("Cannot derive runtime profile for problems with different number of objectives.")
+        raise BadRuntimeProfileException(
+            "Cannot derive runtime profile for problems with different number of objectives."
+        )
 
     # If no targets are given, calculate `number_of_targets` linearly spaced targets
     if not targets:
@@ -61,20 +65,22 @@ def runtime_profiles(
 
     res = {}
     n_results = None
-    for algo, algo_results in indicator_results.by_algorithm():        
+    for algo, algo_results in indicator_results.by_algorithm():
         # Make sure each algorithm has the same number of repetitions/runs If
         # not, raise an exception for now. In the future we could try to down-
         # or upsample the offending algorithm.
         if n_results is None:
             n_results = len(algo_results)
         elif n_results != len(algo_results):
-            raise BadRuntimeProfileException(f"Expected {n_results} results for algorithm {algo}, found {len(results)}.")
+            raise BadRuntimeProfileException(
+                f"Expected {n_results} results for algorithm {algo}, found {len(results)}."
+            )
 
         rtlist = []
 
         for algo_result in algo_results:
             rtlist.append(algo_result._data[["__fevals_dim", "__target_hit"]])
-        
+
         runtimes: pl.DataFrame = pl.concat(rtlist)
         ecdf = stats.ecdf(
             stats.CensoredData(
@@ -134,20 +140,24 @@ def rtpplot(
     ax.set_xscale("log")
     ax.grid(True, which="both", color="lightgrey")
     ax.legend(title="Algorithms")
-    
+
     problems = sorted(set(p.name for p in results.problems))
     if len(problems) > 1:
-        offset = mtransforms.ScaledTranslation(10/72., -10/72., fig.dpi_scale_trans)
-        ax.text(0, 1, "Problems\n" + "\n".join(problems), 
-                transform=ax.transAxes + offset,
-                bbox=dict(facecolor="white", edgecolor="lightgrey"),
-                verticalalignment="top", 
-                horizontalalignment="left")
+        offset = mtransforms.ScaledTranslation(10 / 72.0, -10 / 72.0, fig.dpi_scale_trans)
+        ax.text(
+            0,
+            1,
+            "Problems\n" + "\n".join(problems),
+            transform=ax.transAxes + offset,
+            bbox=dict(facecolor="white", edgecolor="lightgrey"),
+            verticalalignment="top",
+            horizontalalignment="left",
+        )
     else:
         pass
-    
+
     ax.set_ylim(0, 100)
     ax.set_xlabel("# fevals / dimension")
     ax.set_ylabel("Fraction of targets reached [%]")
-    
+
     return ax

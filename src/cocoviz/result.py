@@ -30,7 +30,7 @@ class ProblemDescription:
     instance : str
     number_of_variables : int
     number_of_objectives : int
-    
+
     Methods
     -------
     to_json()
@@ -69,7 +69,7 @@ class ProblemDescription:
 
         Returns
         -------
-        ProblemDescription            
+        ProblemDescription
         """
         raw = json.loads(str)
         return cls(**raw)
@@ -77,7 +77,7 @@ class ProblemDescription:
 
 class Result:
     """Results of a single algorithms run on a single problem"""
-    
+
     def __init__(
         self,
         algorithm: str,
@@ -95,7 +95,9 @@ class Result:
             try:
                 data = data.rename({fevals_column: "__fevals"})
             except (ColumnNotFoundError, SchemaFieldNotFoundError):
-                logger.warning(f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations.")
+                logger.warning(
+                    f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations."
+                )
                 data = data.rename({data.columns[0]: "__fevals"})
 
         # Sort data by '__fevals' column
@@ -134,14 +136,14 @@ class Result:
             raise NoSuchIndicatorException(indicator)
 
         fvals = self._data["__fevals"]
-        
+
         # Make sure indicator values are monotonic
         if indicator.larger_is_better:
             ivals = self._data[indicator.name].cum_max()
         else:
             ivals = self._data[indicator.name].cum_min()
 
-        target_fvals : npt.NDArray[np.float64] = fvals.max() * np.ones(len(targets))
+        target_fvals: npt.NDArray[np.float64] = fvals.max() * np.ones(len(targets))
         target_hit = np.zeros(len(targets))
 
         indicator_idx = 0
@@ -218,14 +220,16 @@ class ResultSet:
     def __len__(self) -> int:
         return len(self._results)
 
-    def __iter__(self) ->  Iterator[Result]:
+    def __iter__(self) -> Iterator[Result]:
         return iter(self._results)
 
     def append(self, result: Result) -> ResultSet:
         # Make sure results have matching indicators and raise an exception if
-        # they don't.        
+        # they don't.
         if len(self._results) > 0 and self._results[0].indicators != result.indicators:
-            raise IndicatorMismatchException("Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}")
+            raise IndicatorMismatchException(
+                "Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}"
+            )
         self.algorithms.add(result.algorithm)
         self.problems.add(result.problem)
         self.number_of_variables.add(result.problem.number_of_variables)
@@ -252,7 +256,7 @@ class ResultSet:
             if function(result):
                 res.append(result)
         return res
-                
+
     def by_algorithm(self) -> Generator[tuple[str, ResultSet], Any, None]:
         ## FIXME: Caution, this is potentially quadratic !
         for algorithm in sorted(self.algorithms):
@@ -299,7 +303,6 @@ class ResultSet:
             if len(ss) > 0:
                 yield value, ss
 
-
     def by_problem_name(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
         return self._by_problem_property("name")
 
@@ -307,7 +310,7 @@ class ResultSet:
         return self._by_problem_property("instance")
 
     def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], Any, None]:
-        return self._by_int_problem_property("number_of_variables")        
+        return self._by_int_problem_property("number_of_variables")
 
     def by_number_of_objectives(self) -> Generator[tuple[int, ResultSet], Any, None]:
-        return self._by_int_problem_property("number_of_objectives")        
+        return self._by_int_problem_property("number_of_objectives")
