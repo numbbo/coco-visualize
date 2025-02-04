@@ -73,7 +73,7 @@ def runtime_profiles(
             n_results = len(algo_results)
         elif n_results != len(algo_results):
             raise BadRuntimeProfileException(
-                f"Expected {n_results} results for algorithm {algo}, found {len(results)}."
+                f"Expected {n_results} results for algorithm {algo}, found {len(algo_results)}."
             )
 
         rtlist = []
