@@ -6,7 +6,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues/numbbo/coco-visualize)](https://github.com/numbbo/coco-visualize/issues)
 ![GitHub Repo stars](https://img.shields.io/github/stars/numbbo/coco-visualize?style=flat)
 
-`cocoviz` is a minimalist visualization toolkit for benchmark experiments.
+`cocoviz` is a minimalist visualization toolkit for benchmark experiments. See [this notebook](example.ipynb) for a usage example.
 
 - **Website:** https://numbbo.github.io
 - **Source code:** https://github.com/numbbo/coco-visualize/
