@@ -8,7 +8,7 @@
 
 `cocoviz` is a minimalist visualization toolkit for benchmark experiments. See [this notebook](example.ipynb) for a usage example.
 
-- **Website:** https://numbbo.github.io
+- **Website:** https://coco-platform.org (was: https://numbbo.github.io)
 - **Source code:** https://github.com/numbbo/coco-visualize/
 - **Contributing:** https://github.com/numbbo/coco-visualize/pulls
 - **Bug reports:** https://github.com/numbbo/coco-visualize/issues
