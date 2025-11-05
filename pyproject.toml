@@ -53,6 +53,11 @@ docstring-code-line-length = 80
 log_cli = true
 addopts = "--doctest-modules"
 
+[dependency-groups]
+dev = [
+    "ruff>=0.14.3",
+]
+
 [project.urls]
 Homepage = "https://github.com/numbbo/coco"
 Documentation = "https://numbbo.github.io/coco-doc/apidocs/cocoex/"
