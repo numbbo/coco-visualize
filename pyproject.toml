@@ -64,3 +64,8 @@ dev = [
 [project.urls]
 Homepage = "https://coco-platform.org/"
 Issues = "https://github.com/numbbo/coco-visualize/issues"
+
+[project.optional-dependencies]
+parquet = [
+    "pyarrow>=22.0.0",
+]
