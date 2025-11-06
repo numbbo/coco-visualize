@@ -9,3 +9,4 @@ Untitled*.ipynb
 src/cocoviz/_version.py
 *.parquet
 uv.lock
+.coverage
