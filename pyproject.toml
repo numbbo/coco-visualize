@@ -49,9 +49,16 @@ quote-style = "double"
 docstring-code-format = true
 docstring-code-line-length = 80
 
+[tool.ruff.lint]
+ignore = ["F821"]
+
 [tool.pytest]
 log_cli = true
 addopts = "--doctest-modules"
+
+[tool.pyright]
+reportAny = false
+reportDeprecated = false
 
 [dependency-groups]
 dev = [
