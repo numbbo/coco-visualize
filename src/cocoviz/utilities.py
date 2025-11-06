@@ -1,8 +1,8 @@
 import colorsys
-from typing import List
+from typing import Sequence
 
 
-def scale_lightness(rgb: List[float], scale_l: float):
+def scale_lightness(rgb: Sequence[float], scale_l: float):
     """Scale the lightness of a RGB color.
 
     Parameters
@@ -20,4 +20,4 @@ def scale_lightness(rgb: List[float], scale_l: float):
         Red, green and blue values of the lightened or darkened color.
     """
     hue, lightness, saturation = colorsys.rgb_to_hls(*rgb)
-    return colorsys.hls_to_rgb(hue, min(1, lightness * scale_l), saturation)
+    return colorsys.hls_to_rgb(hue, max(0, min(1, lightness * scale_l)), saturation)
