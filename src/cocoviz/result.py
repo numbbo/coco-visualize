@@ -5,18 +5,17 @@ from __future__ import annotations
 import dataclasses
 import json
 import logging
-from typing import Any, Generator, Union, Callable, Iterator
-from collections.abc import Sequence
+from collections.abc import Generator, Iterable, Iterator, Sequence, Set
+from typing import Any, Callable, final
 
 import numpy as np
 import numpy.typing as npt
-
 import polars as pl
 from polars.exceptions import ColumnNotFoundError, SchemaFieldNotFoundError
 
 from . import indicator as ind
-from ._typing import FilePath
-from .exceptions import NoSuchIndicatorException, IndicatorMismatchException
+from ._typing import FilePath, FrameLike, NumericVector
+from .exceptions import IndicatorMismatchException, NoSuchIndicatorException
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +75,7 @@ class ProblemDescription:
         return cls(**raw)
 
 
+@final
 class Result:
     """Results of a single algorithms run on a single problem"""
 
@@ -83,40 +83,69 @@ class Result:
         self,
         algorithm: str,
         problem: ProblemDescription,
-        data,
+        data: FrameLike,
         fevals_column: str = "fevals",
     ):
-        if not isinstance(data, pl.DataFrame):
-            data = pl.DataFrame(data)
+        df = pl.DataFrame(data) if not isinstance(data, pl.DataFrame) else data.clone()
+
         self.algorithm = algorithm
         self.problem = problem
 
         if fevals_column != "__fevals":
             # Rename `fevals_column` to '__fevals', if not present guess and warn.
             try:
-                data = data.rename({fevals_column: "__fevals"})
+                df = df.rename({fevals_column: "__fevals"})
             except (ColumnNotFoundError, SchemaFieldNotFoundError):
                 logger.warning(
-                    f"Assuming first column ('{data.columns[0]}') contains the number of function evaluations."
+                    f"Assuming first column ('{df.columns[0]}') contains the number of function evaluations."
                 )
-                data = data.rename({data.columns[0]: "__fevals"})
+                df = df.rename({df.columns[0]: "__fevals"})
 
-        # Sort data by '__fevals' column
-        data = data.sort("__fevals")
+        # Sort data by time ('__fevals' column)
+        df = df.sort("__fevals")
 
         # Pre-compute fevals / dim as '__fevals_dim'
-        self._data = data.with_columns((pl.col("__fevals") / problem.number_of_variables).alias("__fevals_dim"))
+        self._data = df.with_columns((pl.col("__fevals") / problem.number_of_variables).alias("__fevals_dim"))
 
         # All columns excluding '__fevals' and '__fevals_dim' are assumed to
         # contain indicator values.
-        self.indicators = set(self._data.columns) - {"__fevals", "__fevals_dim"}
+        self.indicators: Set[str] = set(self._data.columns) - {"__fevals", "__fevals_dim"}
 
     def __getitem__(self, key: str) -> Any:
+        """
+        Return the indicator column named `key`.
+
+        Parameters
+        ----------
+        key : str
+            Name of indicator.
+
+        Returns
+        -------
+        Any
+            The polars `Series` of indicator values.
+
+        Raises
+        ------
+        NoSuchIndicatorException
+            If `key` is not known as an indicator for this result.
+        """
         if key not in self.indicators:
             raise NoSuchIndicatorException(key)
         return self._data[key]
 
     def __setitem__(self, key: str, item):
+        """
+        Add / replace an indicator column, also registering `key` as an indicator.
+
+        Parameters
+        ----------
+        key : str
+            Name of the indicator.
+        item : Any
+            Column-like (broadcastable) containing the value of the indicator at the
+            observed times.
+        """
         self._data[key] = item
         self.indicators.add(key)
 
@@ -127,9 +156,33 @@ class Result:
         return str(self)
 
     def __len__(self) -> int:
+        """
+        Number of rows / observations in this result.
+
+        Returns
+        -------
+        int
+            number of observations
+        """
         return self._data.height
 
-    def at_indicator(self, indicator: Union[ind.Indicator, str], targets):
+    def at_indicator(self, indicator: ind.Indicator | str, targets: NumericVector):
+        """
+        Compute for each target value the *first* time (function evaluation)
+        at which this run reaches (or surpasses) that target in the given indicator.
+
+        Parameters
+        ----------
+        indicator : Indicator | str
+            Indicator object or indicator name.
+        targets : array-like
+            Target values for the indicator.
+
+        Returns
+        -------
+        Result
+            A new `Result` instance resampled to `targets`.
+        """
         indicator = ind.resolve(indicator)
 
         # FIXME: Assumes maximization of indicator...
@@ -176,7 +229,17 @@ class Result:
         )
 
     def to_parquet(self, path: FilePath):
-        """Write results to a parquet file"""
+        """
+        Serialise the result to parquet.
+
+        Writes both the polars DataFrame *and* metadata
+        (algorithm name + problem JSON) into parquet schema metadata.
+
+        Parameters
+        ----------
+        path : path-like
+            Output path. Existing file will be overwritten.
+        """
         import pyarrow as pa
         import pyarrow.parquet as pq
 
@@ -191,7 +254,22 @@ class Result:
 
     @classmethod
     def from_parquet(cls, path: FilePath):
-        """Read results from a parquet file."""
+        """
+        Load a `Result` from parquet.
+
+        Expects parquet schema metadata entries:
+        - algorithm
+        - problem (in ProblemDescription.to_json() form)
+
+        Parameters
+        ----------
+        path : path-like
+            Parquet file to load.
+
+        Returns
+        -------
+        Result
+        """
         import pyarrow.parquet as pq
 
         tbl = pq.read_table(path)
@@ -203,17 +281,16 @@ class Result:
 
 
 class ResultSet:
-    def __init__(self, results=[]):
-        self.algorithms = set()
-        self.problems = set()
-        self.problem_classes = set()
-        self.problem_instances = set()
-        self.number_of_variables = set()
-        self.number_of_objectives = set()
-        self._results = []
+    "Collection of `Result` objects"
 
-        for r in results:
-            self.append(r)
+    def __init__(self, results: Iterable[Result] = ()):
+        self.algorithms: Set[str] = set()
+        self.problems: Set[ProblemDescription] = set()
+        self.number_of_variables: Set[int] = set()
+        self.number_of_objectives: Set[int] = set()
+        self._results: Sequence[Result] = []
+
+        _ = self.extend(results)
 
     def __getitem__(self, key: int) -> Result:
         return self._results[key]
@@ -238,7 +315,7 @@ class ResultSet:
         self._results.append(result)
         return self
 
-    def extend(self, results: Sequence[Result]):
+    def extend(self, results: Iterable[Result]) -> ResultSet:
         """Extend a ResultSet with a sequence of `Result`s or another `ResultSetǹ.
 
         Parameters
@@ -247,7 +324,8 @@ class ResultSet:
             Results to add to this result set.
         """
         for result in results:
-            self.append(result)
+            _ = self.append(result)
+        return self
 
     def filter(self, function: Callable[[Result], bool]) -> ResultSet:
         """Return a ResultSet containing the results for which `function` returns `True`
@@ -262,67 +340,64 @@ class ResultSet:
         ResultSet
             Results matched by `function`.
         """
-
-        res = ResultSet()
+        subset = ResultSet()
         for result in self._results:
             if function(result):
-                res.append(result)
-        return res
+                _ = subset.append(result)
+        return subset
 
-    def by_algorithm(self) -> Generator[tuple[str, ResultSet], Any, None]:
-        ## FIXME: Caution, this is potentially quadratic !
+    def by_algorithm(self) -> Generator[tuple[str, ResultSet], None]:
         for algorithm in sorted(self.algorithms):
-            ss = ResultSet()
+            subset = ResultSet()
             for result in self._results:
                 if result.algorithm == algorithm:
-                    ss.append(result)
-            if len(ss) > 0:
-                yield algorithm, ss
+                    _ = subset.append(result)
+            if len(subset) > 0:
+                yield algorithm, subset
 
-    def by_problem(self) -> Generator[tuple[ProblemDescription, ResultSet], Any, None]:
-        ## FIXME: Caution, this is potentially quadratic!
+    def by_problem(self) -> Generator[tuple[ProblemDescription, ResultSet], None]:
         for problem in sorted(self.problems):
-            ss = ResultSet()
+            subset = ResultSet()
             for result in self._results:
                 if result.problem == problem:
-                    ss.append(result)
-            if len(ss) > 0:
-                yield problem, ss
+                    _ = subset.append(result)
+            if len(subset) > 0:
+                yield problem, subset
 
-    def _by_int_problem_property(self, property: str) -> Generator[tuple[int, ResultSet], Any, None]:
-        values = set()
+    def _by_int_problem_property(self, property: str) -> Generator[tuple[int, ResultSet], None]:
+        values: Set[int] = set()
         for problem in self.problems:
             values.add(getattr(problem, property))
 
         for value in sorted(values):
-            ss = ResultSet()
+            subset = ResultSet()
             for result in self._results:
                 if getattr(result.problem, property) == value:
-                    ss.append(result)
-            if len(ss) > 0:
-                yield value, ss
+                    _ = subset.append(result)
+            if len(subset) > 0:
+                yield value, subset
 
-    def _by_problem_property(self, property: str) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
-        values = set()
+    def _by_str_problem_property(self, property: str) -> Generator[tuple[str, ResultSet], None]:
+        values: Set[str] = set()
         for problem in self.problems:
             values.add(getattr(problem, property))
 
         for value in sorted(values):
-            ss = ResultSet()
+            subset = ResultSet()
             for result in self._results:
                 if getattr(result.problem, property) == value:
-                    ss.append(result)
-            if len(ss) > 0:
-                yield value, ss
+                    _ = subset.append(result)
+            if len(subset) > 0:
+                yield value, subset
 
-    def by_problem_name(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
-        return self._by_problem_property("name")
+    def by_problem_name(self) -> Generator[tuple[str, ResultSet], None]:
+        return self._by_str_problem_property("name")
 
-    def by_problem_instance(self) -> Generator[tuple[Union[int, str], ResultSet], Any, None]:
-        return self._by_problem_property("instance")
+    def by_problem_instance(self) -> Generator[tuple[str, ResultSet], None]:
+        return self._by_str_problem_property("instance")
 
-    def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], Any, None]:
+    def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], None]:
         return self._by_int_problem_property("number_of_variables")
 
-    def by_number_of_objectives(self) -> Generator[tuple[int, ResultSet], Any, None]:
+    def by_number_of_objectives(self) -> Generator[tuple[int, ResultSet], None]:
         return self._by_int_problem_property("number_of_objectives")

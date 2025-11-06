@@ -1,5 +1,6 @@
 """Runtime profiles"""
 
+from collections.abc import Mapping
 import matplotlib.pyplot as plt
 import matplotlib.figure as mfigure
 import matplotlib.transforms as mtransforms
@@ -7,20 +8,20 @@ import polars as pl
 import scipy.stats as stats
 
 from typing import Union
+import numpy as np
 
 from . import indicator as ind
 from .targets import linear_targets
-from .result import ResultSet
+from .result import ProblemDescription, ResultSet
 from .exceptions import BadRuntimeProfileException
 
 
 def runtime_profiles(
     results: ResultSet,
     indicator: Union[ind.Indicator, str],
-    maximize_indicator: bool = True,
     number_of_targets: int = 101,
-    targets: Union[dict, None] = None,
-):
+    targets: Mapping[ProblemDescription, np.ndarray] | None = None,
+) -> Mapping[str, tuple[np.ndarray, np.ndarray]]:
     """Compute a runtime profile for each algorithm in `results`.
 
     Parameters
