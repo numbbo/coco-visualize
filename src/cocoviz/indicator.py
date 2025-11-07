@@ -82,7 +82,7 @@ def deregister(ind: Union[Indicator, str]):
         pass
 
 
-def resolve(indicator) -> Indicator:
+def resolve(indicator: Indicator | str) -> Indicator:
     """Resolve something to an Indicator using the previously registered indicators
 
     Parameters
