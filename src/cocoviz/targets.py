@@ -55,7 +55,9 @@ def full_targets(results: ResultSet, indicator: ind.Indicator | str) -> dict[Pro
     indicator = ind.resolve(indicator)
     targets = {}
     for desc, problem_results in results.by_problem():
-        indicator_values = pl.concat([r._data for r in problem_results])[indicator]
-        targets[desc] = indicator_values.unique().sort()
-
+        indicator_values = pl.concat([r._data[indicator.name] for r in problem_results])
+        if indicator.larger_is_better:
+            targets[desc] = indicator_values.unique().sort()
+        else:
+            targets[desc] = indicator_values.unique().sort(descending=True)
     return targets
