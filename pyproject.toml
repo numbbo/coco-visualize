@@ -59,9 +59,11 @@ addopts = "--doctest-modules"
 [tool.pyright]
 reportAny = false
 reportDeprecated = false
+reportUnusedCallResult = false
 
 [dependency-groups]
 dev = [
+    "cocopp>=2.8.0",
     "jupyterlab>=4.4.10",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
