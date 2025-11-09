@@ -1,10 +1,9 @@
 [build-system]
 requires = [
-  "setuptools >= 67.0",
-  "setuptools-scm >= 8",
-  "wheel",
+    "hatchling",
+    "versioningit",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 
 [project]
 name = "coco-visualize"
@@ -25,6 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
@@ -34,12 +34,6 @@ dependencies = [
   "scipy >= 1.14.0"
 ]
 dynamic = ["version"]
-
-[tool.setuptools_scm]
-version_file = "src/cocoviz/_version.py"
-
-[tool.setuptools.packages.find]
-where = ["src"]
 
 [tool.ruff]
 line-length = 120
@@ -54,12 +48,31 @@ ignore = ["F821"]
 
 [tool.pytest]
 log_cli = true
-addopts = "--doctest-modules"
+addopts = ["--doctest-modules"]
 
 [tool.pyright]
 reportAny = false
 reportDeprecated = false
 reportUnusedCallResult = false
+
+[tool.hatch.version]
+source = "versioningit"
+
+[tool.hatch.build]
+artifacts = ["src/cocoviz/_version.py"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cocoviz"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+]
+exclude = ["/.gitignore"]
+
+[tool.versioningit.write]
+file = "src/cocoviz/_version.py"
 
 [dependency-groups]
 dev = [
