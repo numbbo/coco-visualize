@@ -1,8 +1,9 @@
 *.csv
 *.egg-info/
-*.ipynb
 *.parquet
 *.pyc
+*.ipynb
+!demo/*.ipynb
 .coverage
 .ipynb_checkpoints/
 __pycache__
