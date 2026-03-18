@@ -8,9 +8,13 @@ from .result import ProblemDescription, ResultSet
 
 
 def log_targets(
-    results: ResultSet, indicator: ind.Indicator | str, number_of_targets: int = 101
+    results: ResultSet,
+    indicator: ind.Indicator | str,
+    number_of_targets: int = 101,
+    min_target: float = -8.0,
 ) -> dict[ProblemDescription, np.ndarray]:
     indicator = ind.resolve(indicator)
+    mul = np.logspace(min_target, 0, number_of_targets)
 
     targets = {}
     for desc, problem_results in results.by_problem():
@@ -19,13 +23,12 @@ def log_targets(
         high = indicator_values.max()
         delta = high - low
 
-        mul = np.logspace(-16, 0, number_of_targets)
         if low == high:
             targets[desc] = np.linspace(low, high, 1)
         elif indicator.larger_is_better:
             targets[desc] = low + delta * mul
         else:
-            targets[desc] = np.flip(low + delta * mul)
+            targets[desc] = high - delta * mul
     return targets
 
 
