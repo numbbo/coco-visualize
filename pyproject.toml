@@ -31,7 +31,7 @@ dependencies = [
   "numpy >= 2.0",
   "polars >= 0.20",
   "matplotlib >= 3.7",
-  "scipy >= 1.14.0"
+  "scipy >= 1.14.0",
 ]
 dynamic = ["version"]
 
@@ -77,10 +77,14 @@ file = "src/cocoviz/_version.py"
 [dependency-groups]
 dev = [
     "cocopp>=2.8.0",
+    "ipywidgets>=8.1.8",
     "jupyterlab>=4.4.10",
+    "pandas>=2.3.3",
+    "pyarrow>=22.0.0",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "ruff>=0.14.3",
+    "tqdm>=4.67.1",
 ]
 
 [project.urls]
