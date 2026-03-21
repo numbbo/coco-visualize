@@ -1,15 +1,17 @@
 """Runtime profiles"""
 
-from collections.abc import Mapping
 import matplotlib.pyplot as plt
 import matplotlib.figure as mfigure
 import matplotlib.transforms as mtransforms
+from matplotlib.axes import Axes
+
 import polars as pl
 import scipy.stats as stats
 
-from typing import Union
 import numpy as np
 
+from collections.abc import Mapping
+from numpy.typing import ArrayLike
 from . import indicator as ind
 from .targets import linear_targets
 from .result import ProblemDescription, ResultSet
@@ -18,10 +20,10 @@ from .exceptions import BadRuntimeProfileException
 
 def runtime_profiles(
     results: ResultSet,
-    indicator: Union[ind.Indicator, str],
+    indicator: ind.Indicator | str,
     number_of_targets: int = 101,
     targets: Mapping[ProblemDescription, np.ndarray] | None = None,
-) -> Mapping[str, tuple[np.ndarray, np.ndarray]]:
+) -> Mapping[str, tuple[ArrayLike, ArrayLike]]:
     """Compute a runtime profile for each algorithm in `results`.
 
     Parameters
@@ -64,7 +66,7 @@ def runtime_profiles(
     for r in results:
         indicator_results.append(r.at_indicator(indicator, targets[r.problem]))
 
-    res = {}
+    res: dict[str, tuple[ArrayLike, ArrayLike]] = {}
     n_results = None
     for algo, algo_results in indicator_results.by_algorithm():
         # Make sure each algorithm has the same number of repetitions/runs If
@@ -94,14 +96,13 @@ def runtime_profiles(
         res[algo] = (ecdf.quantiles, ecdf.probabilities)
     return res
 
-
 def rtpplot(
     results: ResultSet,
     indicator: str,
     number_of_targets: int = 101,
-    targets=None,
-    ax=None,
-):
+    targets = None,
+    ax: Axes|None = None,
+) -> Axes:
     """Plot runtime profiles of the `results`.
 
     Parameters
