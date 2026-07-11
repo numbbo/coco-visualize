@@ -7,6 +7,7 @@ import io
 import json
 import logging
 from collections.abc import Generator, Iterable, Iterator, Sequence, Set
+from pathlib import Path
 from typing import Any, Callable, final
 
 import numpy as np
@@ -334,6 +335,33 @@ class ResultSet:
         self._results: Sequence[Result] = []
 
         _ = self.extend(results)
+
+    @classmethod
+    def from_directory(cls, directory: FilePath) -> ResultSet:
+        """
+        Load a `ResultSet` from all parquet files in a directory.
+
+        Parameters
+        ----------
+        directory : path-like
+            Directory containing `*.parquet` files, each readable by
+            `Result.from_parquet`.
+
+        Returns
+        -------
+        ResultSet
+
+        Raises
+        ------
+        NotADirectoryError
+            If `directory` does not exist or is not a directory.
+        """
+        directory = Path(directory)
+        if not directory.is_dir():
+            raise NotADirectoryError(f"Not a directory: {directory}")
+
+        results = (Result.from_parquet(path) for path in sorted(directory.glob("*.parquet")))
+        return cls(results)
 
     def __getitem__(self, key: int) -> Result:
         """Return the `Result` at position `key`.

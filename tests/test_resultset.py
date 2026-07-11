@@ -53,4 +53,25 @@ def test_str():
 
     assert str(rs) == "ResultSet with 3 result(s) from 2 algorithm(s) on 2 function(s)"
     assert repr(rs) == str(rs)
- 
+
+
+def test_from_directory(tmp_path):
+    pd_f1 = ProblemDescription("f1", "i1", 10, 2)
+    pd_f2 = ProblemDescription("f2", "i1", 10, 2)
+    r1 = Result("a1", pd_f1, HV_a1)
+    r2 = Result("a2", pd_f2, HV_a2)
+
+    r1.to_parquet(tmp_path / "r1.parquet")
+    r2.to_parquet(tmp_path / "r2.parquet")
+    (tmp_path / "not-a-result.txt").write_text("ignore me")
+
+    rs = ResultSet.from_directory(tmp_path)
+
+    assert len(rs) == 2
+    assert rs.algorithms == {"a1", "a2"}
+    assert rs.problems == {pd_f1, pd_f2}
+
+
+def test_from_directory_not_a_directory(tmp_path):
+    with pytest.raises(NotADirectoryError):
+        ResultSet.from_directory(tmp_path / "does-not-exist")
