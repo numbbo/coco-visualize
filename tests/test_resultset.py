@@ -40,3 +40,17 @@ def test_indicator_mismatch():
         rs = ResultSet()
         rs.append(r2)
         rs.append(r1)
+
+
+def test_str():
+    pd_f1 = ProblemDescription("f1", "i1", 10, 2)
+    pd_f2 = ProblemDescription("f2", "i1", 10, 2)
+    r1 = Result("a1", pd_f1, HV_a1)
+    r2 = Result("a2", pd_f2, HV_a2)
+    r3 = Result("a1", pd_f2, HV_a2)
+
+    rs = ResultSet([r1, r2, r3])
+
+    assert str(rs) == "ResultSet with 3 result(s) from 2 algorithm(s) on 2 function(s)"
+    assert repr(rs) == str(rs)
+ 

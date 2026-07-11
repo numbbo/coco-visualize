@@ -341,6 +341,25 @@ class ResultSet:
         """Iterate over the `Result` objects in this set."""
         return iter(self._results)
 
+    def __str__(self) -> str:
+        """
+        Short summary of this result set.
+
+        Returns
+        -------
+        str
+            Summary listing the number of results, algorithms and
+            (distinct) functions in this set.
+        """
+        number_of_functions = len({problem.name for problem in self.problems})
+        return (
+            f"ResultSet with {len(self)} result(s) from {len(self.algorithms)} algorithm(s) "
+            f"on {number_of_functions} function(s)"
+        )
+
+    def __repr__(self) -> str:
+        return str(self)
+
     def append(self, result: Result) -> ResultSet:
         """Add a single `Result` to this set.
 
