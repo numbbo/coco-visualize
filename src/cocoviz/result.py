@@ -281,7 +281,28 @@ class Result:
 
 
 class ResultSet:
-    "Collection of `Result` objects"
+    """Collection of `Result` objects.
+
+    Aggregates the results of (potentially) several algorithms run on
+    (potentially) several problems, and provides helpers to filter and
+    group them, e.g. by algorithm or by problem.
+
+    Parameters
+    ----------
+    results : Iterable[Result], optional
+        Initial results to populate the set with.
+
+    Attributes
+    ----------
+    algorithms : set[str]
+        Names of all algorithms present in the set.
+    problems : set[ProblemDescription]
+        All distinct problems present in the set.
+    number_of_variables : set[int]
+        All distinct problem dimensionalities present in the set.
+    number_of_objectives : set[int]
+        All distinct numbers of objectives present in the set.
+    """
 
     def __init__(self, results: Iterable[Result] = ()):
         self.algorithms: Set[str] = set()
@@ -293,15 +314,52 @@ class ResultSet:
         _ = self.extend(results)
 
     def __getitem__(self, key: int) -> Result:
+        """Return the `Result` at position `key`.
+
+        Parameters
+        ----------
+        key : int
+            Index of the result to return.
+
+        Returns
+        -------
+        Result
+        """
         return self._results[key]
 
     def __len__(self) -> int:
+        """
+        Number of `Result` objects in this set.
+
+        Returns
+        -------
+        int
+        """
         return len(self._results)
 
     def __iter__(self) -> Iterator[Result]:
+        """Iterate over the `Result` objects in this set."""
         return iter(self._results)
 
     def append(self, result: Result) -> ResultSet:
+        """Add a single `Result` to this set.
+
+        Parameters
+        ----------
+        result : Result
+            Result to add.
+
+        Returns
+        -------
+        ResultSet
+            `self`, to allow chaining.
+
+        Raises
+        ------
+        IndicatorMismatchException
+            If `result`'s indicators don't match those of the results
+            already present in this set.
+        """
         # Make sure results have matching indicators and raise an exception if
         # they don't.
         if len(self._results) > 0 and self._results[0].indicators != result.indicators:
@@ -347,6 +405,14 @@ class ResultSet:
         return subset
 
     def by_algorithm(self) -> Generator[tuple[str, ResultSet], None]:
+        """Group results by algorithm.
+
+        Yields
+        ------
+        tuple[str, ResultSet]
+            Algorithm name and the subset of results for that algorithm,
+            in ascending order of algorithm name.
+        """
         for algorithm in sorted(self.algorithms):
             subset = ResultSet()
             for result in self._results:
@@ -356,6 +422,14 @@ class ResultSet:
                 yield algorithm, subset
 
     def by_problem(self) -> Generator[tuple[ProblemDescription, ResultSet], None]:
+        """Group results by problem.
+
+        Yields
+        ------
+        tuple[ProblemDescription, ResultSet]
+            Problem and the subset of results for that problem, in
+            ascending order of problem.
+        """
         for problem in sorted(self.problems):
             subset = ResultSet()
             for result in self._results:
@@ -365,6 +439,20 @@ class ResultSet:
                 yield problem, subset
 
     def _by_int_problem_property(self, property: str) -> Generator[tuple[int, ResultSet], None]:
+        """Group results by an integer-valued attribute of `ProblemDescription`.
+
+        Parameters
+        ----------
+        property : str
+            Name of the integer-valued `ProblemDescription` attribute to
+            group by.
+
+        Yields
+        ------
+        tuple[int, ResultSet]
+            Attribute value and the subset of results sharing that value,
+            in ascending order of value.
+        """
         values: Set[int] = set()
         for problem in self.problems:
             values.add(getattr(problem, property))
@@ -378,6 +466,20 @@ class ResultSet:
                 yield value, subset
 
     def _by_str_problem_property(self, property: str) -> Generator[tuple[str, ResultSet], None]:
+        """Group results by a string-valued attribute of `ProblemDescription`.
+
+        Parameters
+        ----------
+        property : str
+            Name of the string-valued `ProblemDescription` attribute to
+            group by.
+
+        Yields
+        ------
+        tuple[str, ResultSet]
+            Attribute value and the subset of results sharing that value,
+            in ascending order of value.
+        """
         values: Set[str] = set()
         for problem in self.problems:
             values.add(getattr(problem, property))
@@ -391,13 +493,45 @@ class ResultSet:
                 yield value, subset
 
     def by_problem_name(self) -> Generator[tuple[str, ResultSet], None]:
+        """Group results by problem name.
+
+        Yields
+        ------
+        tuple[str, ResultSet]
+            Problem name and the subset of results for that problem name,
+            in ascending order of name.
+        """
         return self._by_str_problem_property("name")
 
     def by_problem_instance(self) -> Generator[tuple[str, ResultSet], None]:
+        """Group results by problem instance.
+
+        Yields
+        ------
+        tuple[str, ResultSet]
+            Problem instance and the subset of results for that instance,
+            in ascending order of instance.
+        """
         return self._by_str_problem_property("instance")
 
     def by_number_of_variables(self) -> Generator[tuple[int, ResultSet], None]:
+        """Group results by problem dimensionality.
+
+        Yields
+        ------
+        tuple[int, ResultSet]
+            Number of variables and the subset of results with that many
+            variables, in ascending order.
+        """
         return self._by_int_problem_property("number_of_variables")
 
     def by_number_of_objectives(self) -> Generator[tuple[int, ResultSet], None]:
+        """Group results by number of objectives.
+
+        Yields
+        ------
+        tuple[int, ResultSet]
+            Number of objectives and the subset of results with that many
+            objectives, in ascending order.
+        """
         return self._by_int_problem_property("number_of_objectives")

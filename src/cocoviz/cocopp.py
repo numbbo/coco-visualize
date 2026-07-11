@@ -1,3 +1,4 @@
+"""Import result data from the cocopp package"""
 
 import polars as pl
 from typing import List
@@ -6,6 +7,22 @@ from .result import Result, ResultSet, ProblemDescription
 
 
 def read_coco_dataset(name: str | List[str]) -> ResultSet:
+    """Load a COCO/bbob dataset via `cocopp` into a `ResultSet`.
+
+    Parameters
+    ----------
+    name : str or list of str
+        Dataset name(s) to load, passed through to `cocopp.load2`.
+
+    Returns
+    -------
+    ResultSet
+
+    Raises
+    ------
+    ImportError
+        If the optional `cocopp` package is not installed.
+    """
     try:
         import cocopp as pp
     except ImportError as e:

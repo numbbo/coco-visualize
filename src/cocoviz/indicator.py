@@ -58,7 +58,7 @@ def register(ind: Indicator):
 
 
 def deregister(ind: Union[Indicator, str]):
-    """_summary_
+    """Remove an indicator from the list of known indicators.
 
     Parameters
     ----------
