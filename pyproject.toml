@@ -83,6 +83,7 @@ dev = [
     "pyarrow>=22.0.0",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
+    "requests>=2.32.0",
     "ruff>=0.14.3",
     "tqdm>=4.67.1",
 ]
@@ -94,4 +95,7 @@ Issues = "https://github.com/numbbo/coco-visualize/issues"
 [project.optional-dependencies]
 parquet = [
     "pyarrow>=22.0.0",
+]
+http = [
+    "requests>=2.32.0",
 ]

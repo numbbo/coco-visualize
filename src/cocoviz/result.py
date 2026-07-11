@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import io
 import json
 import logging
 from collections.abc import Generator, Iterable, Iterator, Sequence, Set
@@ -264,15 +265,36 @@ class Result:
         Parameters
         ----------
         path : path-like
-            Parquet file to load.
+            Parquet file to load. May also be an ``http://`` or
+            ``https://`` URL, in which case the optional `requests`
+            dependency is required (``pip install coco-visualize[http]``).
 
         Returns
         -------
         Result
+
+        Raises
+        ------
+        ImportError
+            If `path` is an HTTP(S) URL but `requests` is not installed.
         """
         import pyarrow.parquet as pq
 
-        tbl = pq.read_table(path)
+        if isinstance(path, str) and path.startswith(("http://", "https://")):
+            try:
+                import requests
+            except ImportError as e:
+                raise ImportError(
+                    "Loading a Result from an http(s) URL requires the 'requests' package. "
+                    "Install it with `pip install coco-visualize[http]`."
+                ) from e
+
+            response = requests.get(path)
+            response.raise_for_status()
+            tbl = pq.read_table(io.BytesIO(response.content))
+        else:
+            tbl = pq.read_table(path)
+
         algorithm = tbl.schema.metadata[b"algorithm"].decode("utf8")
         problem = ProblemDescription.from_json(tbl.schema.metadata[b"problem"].decode("utf8"))
         data = pl.from_arrow(tbl)
