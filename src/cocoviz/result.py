@@ -364,7 +364,7 @@ class ResultSet:
         # they don't.
         if len(self._results) > 0 and self._results[0].indicators != result.indicators:
             raise IndicatorMismatchException(
-                "Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}"
+                f"Indicators in results don't match: {self._results[0].indicators} vs {result.indicators}"
             )
         self.algorithms.add(result.algorithm)
         self.problems.add(result.problem)
