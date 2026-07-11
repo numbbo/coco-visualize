@@ -374,7 +374,7 @@ class ResultSet:
         return self
 
     def extend(self, results: Iterable[Result]) -> ResultSet:
-        """Extend a ResultSet with a sequence of `Result`s or another `ResultSetǹ.
+        """Extend a ResultSet with a sequence of `Result`s or another `ResultSet`.
 
         Parameters
         ----------
