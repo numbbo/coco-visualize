@@ -137,7 +137,7 @@ def rtpplot(
         fig: mfigure.Figure = ax.figure
 
     for algo, (fevals, prob) in profiles.items():
-        (line,) = ax.step(fevals, 100 * prob, label=algo)
+        (line,) = ax.step(fevals, 100 * prob, where="post", label=algo)
 
     ax.set_xscale("log")
     ax.grid(True, which="both", color="lightgrey")
