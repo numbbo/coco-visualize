@@ -48,7 +48,7 @@ ignore = ["F821"]
 
 [tool.pytest]
 log_cli = true
-addopts = ["--doctest-modules"]
+addopts = ["--doctest-modules", "--ignore=tutorial/"]
 
 [tool.pyright]
 reportAny = false
@@ -76,15 +76,19 @@ file = "src/cocoviz/_version.py"
 
 [dependency-groups]
 dev = [
+    "cmaes>=0.13.0",
     "cocopp>=2.8.0",
     "ipywidgets>=8.1.8",
+    "jax>=0.6.2",
     "jupyterlab>=4.4.10",
     "pandas>=2.3.3",
+    "pip>=26.1.2",
     "pyarrow>=22.0.0",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "requests>=2.32.0",
     "ruff>=0.14.3",
+    "scipy>=1.15.3",
     "tqdm>=4.67.1",
 ]
 
