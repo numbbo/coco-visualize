@@ -4,8 +4,10 @@
 *.pyc
 *.ipynb
 !demo/*.ipynb
+!tutorial/tutorial.ipynb
 .coverage
 .ipynb_checkpoints/
 __pycache__
 src/cocoviz/_version.py
 uv.lock
+tutorial/data/
