@@ -252,9 +252,19 @@ class Result:
         ----------
         path : path-like
             Output path. Existing file will be overwritten.
+
+        Raises
+        ------
+        ImportError
+            If the optional `pyarrow` package is not installed.
         """
-        import pyarrow as pa
-        import pyarrow.parquet as pq
+        try:
+            import pyarrow as pa
+            import pyarrow.parquet as pq
+        except ImportError as e:
+            raise ImportError(
+                "to_parquet requires the pyarrow package to be installed. Install it with: `pip install coco-visualize[parquet]`."
+            ) from e
 
         tbl = self._data.to_arrow()
         metadata = {
@@ -288,9 +298,15 @@ class Result:
         Raises
         ------
         ImportError
-            If `path` is an HTTP(S) URL but `requests` is not installed.
+            If the optional `pyarrow` package is not installed, or if
+            `path` is an HTTP(S) URL but `requests` is not installed.
         """
-        import pyarrow.parquet as pq
+        try:
+            import pyarrow.parquet as pq
+        except ImportError as e:
+            raise ImportError(
+                "from_parquet requires the pyarrow package to be installed. Install it with: `pip install coco-visualize[parquet]`."
+            ) from e
 
         if isinstance(path, str) and path.startswith(("http://", "https://")):
             try:
