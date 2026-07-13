@@ -140,6 +140,15 @@ def rtpplot(
         (line,) = ax.step(fevals, 100 * prob, where="post", label=algo)
 
     ax.set_xscale("log")
+
+    # log-scale autoscale silently drops fevals_dim == 0 (e.g. a target hit at
+    # the very first evaluation); pin the left edge to the smallest positive
+    # value actually observed so that step is still visible.
+    all_fevals = np.concatenate([np.asarray(fevals) for fevals, _ in profiles.values()])
+    positive = all_fevals[all_fevals > 0]
+    if positive.size:
+        ax.set_xlim(left=positive.min())
+
     ax.grid(True, which="both", color="lightgrey")
     ax.legend(title="Algorithms")
 
