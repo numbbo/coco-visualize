@@ -113,6 +113,17 @@ class Result:
         # contain indicator values.
         self.indicators: Set[str] = set(self._data.columns) - {"__fevals", "__fevals_dim"}
 
+    @property
+    def fevals(self) -> pl.Series:
+        """
+        Number of function evaluations for each observation.
+
+        Returns
+        -------
+        polars.Series
+        """
+        return self._data["__fevals"]
+
     def __getitem__(self, key: str) -> Any:
         """
         Return the indicator column named `key`.
