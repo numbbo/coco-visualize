@@ -2,11 +2,15 @@
 <img src="https://raw.githubusercontent.com/numbbo/coco-visualize/main/cocoviz.svg" width="400"><br>
 </h1>
 
-# More than Tables: Visualizing Anytime Performance in Single- and Multiobjective Optimization
-
-Tutorial @ GECCO 2026
+# Tutorial
 
 [![Open Tutorial In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/numbbo/coco-visualize/blob/main/tutorial/tutorial.ipynb)
+
+## Recording
+
+This is a prerecorded version of the hands on portion of our tutorial "More than Tables: Visualizing Anytime Performance in Single- and Multiobjective Optimization" at GECCO 2026.
+
+[![Watch the video on YouTube](https://img.youtube.com/vi/xqZ9cZn5R8Y/0.jpg)](https://www.youtube.com/watch?v=xqZ9cZn5R8Y)
 
 ## About
 
